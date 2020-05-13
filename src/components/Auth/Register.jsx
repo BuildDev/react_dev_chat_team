@@ -17,26 +17,78 @@ class Resgister extends Component {
     email: "",
     password: "",
     passwordConfirmation: "",
+    errors: [],
   };
+
+  isFormvalid = () => {
+    let errors = [];
+    let error;
+    if (this.isFormEmpty(this.state)) {
+      error = { message: "Please Fill in all fields" };
+      this.setState({
+        errors: errors.concat(error),
+      });
+      return false;
+    } else if (!this.isPasswordValid(this.state)) {
+      error = { message: "Password is invalid" };
+      this.setState({
+        errors: errors.concat(error),
+      });
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  isFormEmpty = ({ username, email, password, passwordConfirmation }) => {
+    return (
+      !username.length ||
+      !email.length ||
+      !password.length ||
+      !passwordConfirmation.length
+    );
+  };
+
+  isPasswordValid = ({ password, passwordConfirmation }) => {
+    if (password < 8 && passwordConfirmation < 8) {
+      return false;
+    } else if (password !== passwordConfirmation) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  displayErrors = (errors) =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
 
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
   handleSubmit = (event) => {
-    event.preventDefault();
-    firebase.auth()
-      .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then((createdUser) => {
-        console.log(createdUser);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (this.isFormvalid()) {
+      event.preventDefault();
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.state.email, this.state.password)
+        .then((createdUser) => {
+          console.log(createdUser);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
 
   render() {
-    const { username, email, passwordConfirmation, password } = this.state;
+    const {
+      username,
+      email,
+      passwordConfirmation,
+      password,
+      errors,
+    } = this.state;
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -95,6 +147,12 @@ class Resgister extends Component {
               </Button>
             </Segment>
           </Form>
+          {errors.length > 0 && (
+            <Message error>
+              <h3>Error</h3>
+              {this.displayErrors(errors)}
+            </Message>
+          )}
           <Message>
             Alerady a user ? <Link to="/Login">Login</Link>
           </Message>
