@@ -110,13 +110,16 @@ class Resgister extends Component {
       loading,
     } = this.state;
     return (
-      <Grid textAlign="center" verticalAlign="middle" className="app">
+      <Grid textAlign="center" verticalAlign="middle" className="app cover">
         <Grid.Column style={{ maxWidth: 450 }}>
-          <Header as="h2" icon color="green" textAlign="center">
-            <Icon name="slack hash" color="green" />
-            Register for DevChatTeam
+          <Header as="h2" icon color="blue" textAlign="center">
+            <Icon>
+              <img src="./img/logo.png" style={{ maxWidth: "220px" }} />
+            </Icon>
+            <span style={{ color: "#fff" }}>Register for Iobird</span>{" "}
+            DevChatTeam
           </Header>
-          <Form size="large" onSubmit={this.handleSubmit}>
+          <Form size="large" onSubmit={this.handleSubmit} className="shadow">
             <Segment stacked>
               <Form.Input
                 fluid
@@ -169,11 +172,11 @@ class Resgister extends Component {
               <Button
                 disabled={loading}
                 className={loading ? "loading" : ""}
-                color="green"
+                color="blue"
                 fluid
                 size="large"
               >
-                Submit
+                Register
               </Button>
             </Segment>
           </Form>
@@ -183,7 +186,7 @@ class Resgister extends Component {
               {this.displayErrors(errors)}
             </Message>
           )}
-          <Message>
+          <Message className="shadow">
             Alerady a user ? <Link to="/Login">Login</Link>
           </Message>
         </Grid.Column>
