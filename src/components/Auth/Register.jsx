@@ -18,6 +18,7 @@ class Resgister extends Component {
     password: "",
     passwordConfirmation: "",
     errors: [],
+    loading: false,
   };
 
   isFormvalid = () => {
@@ -69,16 +70,34 @@ class Resgister extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.isFormvalid()) {
+      this.setState({
+        errors: [],
+        loading: true,
+      });
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then((createdUser) => {
           console.log(createdUser);
+          this.setState({
+            loading: false,
+          });
         })
         .catch((error) => {
           console.log(error);
+          this.setState({
+            loading: false,
+            errors: this.state.errors.concat(error),
+          });
         });
     }
+  };
+  handleInputError = (errors, inputName) => {
+    return errors.some((error) =>
+      error.message.toLowerCase().includes(inputName)
+    )
+      ? "error"
+      : "";
   };
 
   render() {
@@ -88,6 +107,7 @@ class Resgister extends Component {
       passwordConfirmation,
       password,
       errors,
+      loading,
     } = this.state;
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
@@ -107,6 +127,7 @@ class Resgister extends Component {
                 type="text"
                 onChange={this.handleChange}
                 value={username}
+                className={this.handleInputError(errors, "username")}
               />
 
               <Form.Input
@@ -118,6 +139,7 @@ class Resgister extends Component {
                 type="email"
                 onChange={this.handleChange}
                 value={email}
+                className={this.handleInputError(errors, "email")}
               />
 
               <Form.Input
@@ -129,6 +151,7 @@ class Resgister extends Component {
                 type="password"
                 onChange={this.handleChange}
                 value={password}
+                className={this.handleInputError(errors, "password")}
               />
 
               <Form.Input
@@ -140,9 +163,16 @@ class Resgister extends Component {
                 type="password"
                 onChange={this.handleChange}
                 value={passwordConfirmation}
+                className={this.handleInputError(errors, "password")}
               />
 
-              <Button color="green" fluid size="large">
+              <Button
+                disabled={loading}
+                className={loading ? "loading" : ""}
+                color="green"
+                fluid
+                size="large"
+              >
                 Submit
               </Button>
             </Segment>
