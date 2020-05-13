@@ -67,8 +67,8 @@ class Resgister extends Component {
   };
 
   handleSubmit = (event) => {
+    event.preventDefault();
     if (this.isFormvalid()) {
-      event.preventDefault();
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
