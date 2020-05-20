@@ -10,6 +10,7 @@ import {
 } from "semantic-ui-react";
 import firebase from "../../firebase/Firebase-utils";
 import { Link } from "react-router-dom";
+import md5 from "md5";
 
 class Resgister extends Component {
   state = {
@@ -19,6 +20,7 @@ class Resgister extends Component {
     passwordConfirmation: "",
     errors: [],
     loading: false,
+    usersRef: firebase.database().ref("users"),
   };
 
   isFormvalid = () => {
@@ -79,9 +81,20 @@ class Resgister extends Component {
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then((createdUser) => {
           console.log(createdUser);
-          this.setState({
-            loading: false,
-          });
+          createdUser.user
+            .updateProfile({
+              displayName: this.state.username,
+              photoURL: `http://gravatar.com/avatar/${md5(
+                createdUser.user.email
+              )}?d=identicon`,
+            })
+            .then(() => {
+              this.saveUser(createdUser).then(() => {
+                this.setState({
+                  loading: false,
+                });
+              });
+            });
         })
         .catch((error) => {
           console.log(error);
@@ -98,6 +111,14 @@ class Resgister extends Component {
     )
       ? "error"
       : "";
+  };
+
+  saveUser = (createdUser) => {
+    const { usersRef } = this.state;
+    return usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
   };
 
   render() {
@@ -181,7 +202,7 @@ class Resgister extends Component {
             </Segment>
           </Form>
           {errors.length > 0 && (
-            <Message error>
+            <Message error className="shadow">
               <h3>Error</h3>
               {this.displayErrors(errors)}
             </Message>
